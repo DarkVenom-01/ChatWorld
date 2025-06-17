@@ -4,6 +4,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuthUser } from "../redux/userSlice";
+import { API_ENDPOINTS } from "../config/api";
 
 const Login = () => {
   const [user, setUser] = useState({
@@ -21,8 +22,10 @@ const Login = () => {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
+      // Use the deployed backend URL instead of localhost
+      const backendUrl = 'https://your-backend-url.onrender.com'; // Replace with your actual backend URL
       const res = await axios.post(
-        "http://localhost:8080/api/v1/user/login",
+        `${backendUrl}/api/v1/user/login`,
         user,
         {
           headers: {
@@ -33,9 +36,9 @@ const Login = () => {
       );
       console.log("Login response:", res.data);
       dispatch(setAuthUser(res.data));
-      navigate("/home"); // Changed from "/" to "/home"
+      navigate("/home");
     } catch (error) {
-      toast.error(error.response.data.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
       console.log(error);
     }
     setUser({
