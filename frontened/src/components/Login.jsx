@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -13,6 +13,11 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Clear any existing auth state on component mount
+  useEffect(() => {
+    dispatch(setAuthUser(null));
+  }, []);
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -26,10 +31,11 @@ const Login = () => {
           withCredentials: true,
         }
       );
-        navigate("/");
-        dispatch(setAuthUser(res.data));
+      console.log("Login response:", res.data);
+      dispatch(setAuthUser(res.data));
+      navigate("/home"); // Changed from "/" to "/home"
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response.data.message || "Login failed");
       console.log(error);
     }
     setUser({
@@ -37,6 +43,16 @@ const Login = () => {
       password: "",
     });
   };
+
+  // Function to clear localStorage and Redux state
+  const clearStorage = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    dispatch(setAuthUser(null));
+    toast.success("Storage cleared");
+    window.location.reload();
+  };
+
   return (
     <div className="min-w-96 mx-auto">
       <div className="w-full p-6 rounded-lg shadow-md bg-gray-400 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100">
@@ -80,6 +96,12 @@ const Login = () => {
             </button>
           </div>
         </form>
+        <button 
+          onClick={clearStorage}
+          className="btn btn-sm mt-4 text-xs"
+        >
+          Clear Storage (If Login Issues)
+        </button>
       </div>
     </div>
   );
